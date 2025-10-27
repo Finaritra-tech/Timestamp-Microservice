@@ -25,21 +25,19 @@ app.get("/api/hello", function (req, res) {
 });
 
 app.get("/api", (req, res) => {
-  const now = new Date();
+  const now = new Date(Date.now()); // <-- assure UTC
   res.json({
     unix: now.getTime(),
     utc: now.toUTCString()
   });
 });
-
 app.get("/api/", (req, res) => {
-  const now = new Date();
+  const now = new Date(Date.now()); // <-- assure UTC
   res.json({
     unix: now.getTime(),
     utc: now.toUTCString()
   });
 });
-
 
 app.get("/api/:date", (req, res) => {
   let dateInput = req.params.date;
