@@ -1,66 +1,69 @@
 // index.js
-// where your node app starts
-
-// init project
 var express = require('express');
 var app = express();
-
-// enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
-// so that your API is remotely testable by FCC 
 var cors = require('cors');
-app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
 
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
+app.use(cors({ optionsSuccessStatus: 200 }));  // pour FCC
 
-// http://expressjs.com/en/starter/basic-routing.html
+// Page d'accueil
 app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-
-// your first API endpoint... 
+// API test
 app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+  res.json({ greeting: 'hello API' });
 });
 
+// Route /api → retourne la date actuelle
 app.get("/api", (req, res) => {
-  const now = new Date(Date.now()); // <-- assure UTC
+  const now = new Date();
   res.json({
     unix: now.getTime(),
     utc: now.toUTCString()
   });
 });
+
+// Route /api/ → idem /api pour éviter tout échec FCC
 app.get("/api/", (req, res) => {
-  const now = new Date(Date.now()); // <-- assure UTC
+  const now = new Date();
   res.json({
     unix: now.getTime(),
     utc: now.toUTCString()
   });
 });
 
+// Route /api/:date → date timestamp ou date string
 app.get("/api/:date", (req, res) => {
-  let dateInput = req.params.date;
+  const dateInput = req.params.date;
+  let date;
 
-  if (!isNaN(dateInput)) {
-    dateInput = parseInt(dateInput);
+  // Paramètre vide → date actuelle
+  if (!dateInput) {
+    date = new Date();
+  } 
+  // Timestamp numérique
+  else if (/^\d+$/.test(dateInput)) {
+    date = new Date(parseInt(dateInput));
+  } 
+  // Date string classique
+  else {
+    date = new Date(dateInput);
   }
 
-  const date = new Date(dateInput);
-
+  // Vérification date valide
   if (date.toString() === "Invalid Date") {
     return res.json({ error: "Invalid Date" });
   }
 
- 
+  // Réponse JSON
   res.json({
     unix: date.getTime(),
     utc: date.toUTCString()
   });
 });
 
-
-// Listen on port set in environment variable or default to 3000
+// Serveur
 var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
