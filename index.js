@@ -32,12 +32,11 @@ app.get("/api", (req, res) => {
   });
 });
 
+
 app.get("/api/:date", (req, res) => {
   let dateInput = req.params.date;
 
-  if (!isNaN(dateInput)) {
-    dateInput = parseInt(dateInput);
-  }
+  if (!isNaN(dateInput)) dateInput = parseInt(dateInput);
 
   const date = new Date(dateInput);
 
@@ -50,6 +49,7 @@ app.get("/api/:date", (req, res) => {
     utc: date.toUTCString()
   });
 });
+
 
 
 // Listen on port set in environment variable or default to 3000
