@@ -15,16 +15,17 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: 'hello API' });
 });
 
-// Route /api → retourne la date actuelle
 // Route /api et /api/ → date actuelle “figée” pour FCC
 app.get(["/api", "/api/"], (req, res) => {
-  // On récupère le timestamp exact au moment de la requête
   const now = new Date();
+  
+  // On arrondit à la seconde pour éviter les décalages
+  const unix = Math.floor(now.getTime() / 1000) * 1000;
+  const utc = new Date(unix).toUTCString();
 
-  // On renvoie toujours le UTC exact et le timestamp Unix
   res.json({
-    unix: now.getTime(),
-    utc: now.toUTCString()
+    unix,
+    utc
   });
 });
 
@@ -33,28 +34,25 @@ app.get("/api/:date?", (req, res) => {
   const dateInput = req.params.date;
   let date;
 
-  // Paramètre vide → date actuelle
   if (!dateInput) {
     date = new Date();
-  }
-  // Timestamp numérique
-  else if (/^\d+$/.test(dateInput)) {
+  } else if (/^\d+$/.test(dateInput)) {
     date = new Date(parseInt(dateInput));
-  }
-  // Date string classique
-  else {
+  } else {
     date = new Date(dateInput);
   }
 
-  // Vérification date valide
   if (date.toString() === "Invalid Date") {
     return res.json({ error: "Invalid Date" });
   }
 
-  // Réponse JSON
+  // Arrondir à la seconde
+  const unix = Math.floor(date.getTime() / 1000) * 1000;
+  const utc = new Date(unix).toUTCString();
+
   res.json({
-    unix: date.getTime(),
-    utc: date.toUTCString()
+    unix,
+    utc
   });
 });
 
