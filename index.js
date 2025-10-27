@@ -16,30 +16,46 @@ app.get("/api/hello", function (req, res) {
 });
 
 // Route /api → retourne la date actuelle
-app.get("/api", (req, res) => {
+// Route /api et /api/ → date actuelle “figée” pour FCC
+app.get(["/api", "/api/"], (req, res) => {
+  // On récupère le timestamp exact au moment de la requête
   const now = new Date();
+
+  // On renvoie toujours le UTC exact et le timestamp Unix
   res.json({
     unix: now.getTime(),
     utc: now.toUTCString()
   });
 });
 
+// Route /api/:date? → timestamp ou date string
+app.get("/api/:date?", (req, res) => {
+  const dateInput = req.params.date;
+  let date;
 
-app.get("/api/", function (req, res) {
-  let currentDate = new Date()
-  res.json({"unix": currentDate.getTime(), "utc": `${currentDate}`});
-});
+  // Paramètre vide → date actuelle
+  if (!dateInput) {
+    date = new Date();
+  }
+  // Timestamp numérique
+  else if (/^\d+$/.test(dateInput)) {
+    date = new Date(parseInt(dateInput));
+  }
+  // Date string classique
+  else {
+    date = new Date(dateInput);
+  }
 
+  // Vérification date valide
+  if (date.toString() === "Invalid Date") {
+    return res.json({ error: "Invalid Date" });
+  }
 
-
-app.get("/api/:date?", function (req, res) {
-  let calcDate = isNaN(req.params.date) ? req.params.date : parseInt(req.params.date)
-  console.log(calcDate)
-  let currentDate = new Date(calcDate)
-  let errorResponse = {"error": `${currentDate}`}
-  let validResponse = {"unix": currentDate.getTime(), "utc": `${currentDate.toUTCString()}`}
-  console.log(currentDate)
-  currentDate == "Invalid Date" ? res.json(errorResponse) : res.json(validResponse); 
+  // Réponse JSON
+  res.json({
+    unix: date.getTime(),
+    utc: date.toUTCString()
+  });
 });
 
 // Serveur
